@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Smart Healthcare Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            background: url('{{ url_for('static', filename='abstract-blur-green-nature.jpg') }}') no-repeat center center fixed;
+            background-size: cover;
+            font-family: "Poppins", sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="chat-wrapper">
+    <header>
+        <h2>🩺 AI-Based Smart Healthcare Chatbot</h2>
+    </header>
+
+    <div id="chat-box" class="chat-box"></div>
+
+    <div class="input-area">
+        <input id="user-input" type="text" placeholder="Type your symptoms..." autocomplete="off">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+const chatBox = document.getElementById("chat-box");
+
+// Typewriter effect
+function typeBotMessage(text, delay = 15) {
+    const botMsg = document.createElement("div");
+    botMsg.classList.add("bot-msg");
+    chatBox.appendChild(botMsg);
+
+    let i = 0;
+    function type() {
+        if (i < text.length) {
+            botMsg.innerHTML = text.slice(0, i + 1);
+            i++;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            setTimeout(type, delay);
+        }
+    }
+    type();
+}
+
+// Greeting
+function showGreeting() {
+    const greeting = `
+🤖 Hello! I’m your AI-based Smart Healthcare Assistant.<br>
+I can help you understand possible conditions based on your symptoms.<br>
+Type 'list' to view all symptoms or 'exit' to quit anytime.<br><br>
+Please tell me what symptoms you're experiencing:
+`;
+    typeBotMessage(greeting, 20);
+}
+
+// Send message
+async function sendMessage() {
+    const input = document.getElementById("user-input");
+    const message = input.value.trim();
+    if (!message) return;
+
+    const userMsg = document.createElement("div");
+    userMsg.classList.add("user-msg");
+    userMsg.textContent = message;
+    chatBox.appendChild(userMsg);
+
+    input.value = "";
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    const botTyping = document.createElement("div");
+    botTyping.classList.add("bot-msg");
+    botTyping.textContent = "🤖 Typing...";
+    chatBox.appendChild(botTyping);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    const response = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+    });
+
+    const data = await response.json();
+    chatBox.removeChild(botTyping);
+    typeBotMessage(data.reply.replace(/\n/g, "<br>"));
+}
+
+document.getElementById("user-input").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") sendMessage();
+});
+
+window.onload = showGreeting;
+</script>
+</body>
+</html>
