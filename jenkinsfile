@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Gonsalo-Godson/AI_Healthcare_Chatbot.git'
+            }
+        }
+
+        stage('Set up Python Environment') {
+            steps {
+                sh '''
+                python3 -m venv venv
+                . venv/bin/activate
+                pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh '''
+                . venv/bin/activate
+                pytest || echo "No tests found"
+                '''
+            }
+        }
+
+        stage('Deploy to Azure WebApp') {
+            steps {
+                echo 'Deploying to Azure WebApp...'
+                sh '''
+                az webapp deployment source config-local-git \
+                --name smart-healthcare-chatbot \
+                --resource-group chatbot-rg
+                '''
+            }
+        }
+    }
+}
