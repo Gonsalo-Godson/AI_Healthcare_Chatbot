@@ -16,11 +16,22 @@ pipeline {
             }
         }
 
+        stage('Install System Dependencies') {
+            steps {
+                echo 'Installing required system packages...'
+                sh '''
+                sudo apt update
+                sudo apt install -y python3-venv python3-pip
+                '''
+            }
+        }
+
         stage('Install Requirements') {
             steps {
                 sh '''
                 python3 -m venv venv
                 . venv/bin/activate
+                pip install --upgrade pip
                 pip install -r requirements.txt
                 '''
             }
