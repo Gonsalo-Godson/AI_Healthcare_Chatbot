@@ -20,8 +20,8 @@ pipeline {
             steps {
                 echo 'Installing required system packages...'
                 sh '''
-                sudo apt update
-                sudo apt install -y python3-venv python3-pip
+                apt update -y
+                apt install -y python3-venv python3-pip
                 '''
             }
         }
